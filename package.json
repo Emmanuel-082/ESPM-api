@@ -1,0 +1,14 @@
+{
+  "name": "espm-api",
+  "version": "1.0.0",
+  "description": "API REST del proyecto formativo ESPM (Empresa de Servicios Públicos de Moniquirá): cuentas, facturas, PQR, noticias y contacto.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "ISC"
+}

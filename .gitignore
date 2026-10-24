@@ -1,0 +1,9 @@
+# Dependencias (por si en el futuro se instalan paquetes)
+node_modules/
+
+# Base de datos local que se crea sola al iniciar el servidor
+data/db.json
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
