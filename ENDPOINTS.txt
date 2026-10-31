@@ -1,0 +1,89 @@
+ENDPOINTS DE LA API DE ESPM – MONIQUIRÁ
+Evidencia GA7-220501096-AA5-EV04. API del proyecto
+Aprendiz: Emmanuel Porras
+
+URL base (local): http://localhost:3000
+Formato de envío y respuesta: JSON
+Servicios protegidos: enviar la cabecera  Authorization: Bearer <token>
+El token se obtiene en POST /api/auth/login
+
+------------------------------------------------------------
+ESTADO
+------------------------------------------------------------
+GET    /api/salud                              Público          Comprobar que la API está activa
+
+------------------------------------------------------------
+CUENTAS DE USUARIO
+------------------------------------------------------------
+POST   /api/auth/registro                      Público          Crear cuenta
+POST   /api/auth/login                         Público          Iniciar sesión (devuelve token)
+POST   /api/auth/recuperar                     Público          Recuperar contraseña
+
+------------------------------------------------------------
+FACTURAS
+------------------------------------------------------------
+GET    /api/facturas?cuenta=001-2345-6         Público          Consultar facturas por número de cuenta
+GET    /api/facturas?cedula=1234567890         Público          Consultar facturas por cédula/NIT
+POST   /api/facturas/:id/pagar                 Usuario          Pagar una factura
+GET    /api/facturas/:id/recibo                Usuario          Generar el recibo de una factura pagada
+
+------------------------------------------------------------
+PQR (PETICIONES, QUEJAS Y RECLAMOS)
+------------------------------------------------------------
+POST   /api/pqr                                Público          Radicar una PQR
+GET    /api/pqr?cedula=1234567890              Público          Consultar el estado de las PQR de una cédula
+PUT    /api/pqr/:radicado                      Administrador    Cambiar estado y responder una PQR
+
+------------------------------------------------------------
+NOTICIAS Y COMUNICADOS
+------------------------------------------------------------
+GET    /api/noticias                           Público          Listar noticias
+GET    /api/noticias?tipo=Corte&buscar=agua    Público          Filtrar por tipo y buscar por palabra
+POST   /api/noticias                           Administrador    Publicar una noticia
+
+------------------------------------------------------------
+CONTACTO
+------------------------------------------------------------
+POST   /api/contacto                           Público          Enviar mensaje de contacto
+GET    /api/contacto                           Administrador    Ver los mensajes recibidos
+
+------------------------------------------------------------
+CUERPOS DE EJEMPLO (JSON)
+------------------------------------------------------------
+POST /api/auth/registro
+{ "nombre": "Juan Pérez", "cedula": "1234567890", "telefono": "3101234567",
+  "correo": "juan@ejemplo.com", "contrasena": "Clave12345", "confirmarContrasena": "Clave12345" }
+
+POST /api/auth/login
+{ "correo": "juan@ejemplo.com", "contrasena": "Clave12345" }
+
+POST /api/auth/recuperar
+{ "correo": "juan@ejemplo.com" }
+
+POST /api/facturas/FAC-2025-0601/pagar
+{ "metodo": "PSE" }        (también se acepta "Tarjeta")
+
+POST /api/pqr
+{ "tipo": "Reclamo", "servicio": "Facturación", "nombre": "Juan Pérez", "cedula": "1234567890",
+  "telefono": "3101234567", "correo": "juan@ejemplo.com", "cuenta": "001-2345-6",
+  "descripcion": "Me cobraron dos veces el servicio de aseo." }
+
+PUT /api/pqr/PQR-2026-0190
+{ "estado": "Resuelto", "respuesta": "Se reversó el cobro duplicado." }
+
+POST /api/noticias
+{ "tipo": "Comunicado", "titulo": "Horario de atención en diciembre",
+  "descripcion": "Atenderemos de lunes a viernes hasta las 5 PM durante diciembre.",
+  "horario": "7:00 AM - 5:00 PM" }
+
+POST /api/contacto
+{ "nombre": "Ana Torres", "telefono": "3001112233", "correo": "ana@ejemplo.com",
+  "mensaje": "¿Hasta qué hora atienden los sábados?" }
+
+------------------------------------------------------------
+CÓDIGOS DE RESPUESTA
+------------------------------------------------------------
+200 Correcto | 201 Creado | 400 Datos no válidos | 401 Falta iniciar sesión o autenticación fallida
+403 Sin permiso | 404 No encontrado | 409 Conflicto (ya existe / ya pagada)
+
+Repositorio: ver el archivo ENLACE_REPOSITORIO.txt

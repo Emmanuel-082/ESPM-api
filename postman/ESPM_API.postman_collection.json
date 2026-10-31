@@ -1,0 +1,1309 @@
+{
+  "info": {
+    "name": "API ESPM – Pruebas (AA5-EV04)",
+    "description": "Pruebas de la API REST de ESPM Moniquirá. Antes de ejecutar: iniciar el servidor (node server.js) con la base de datos limpia (borrar data/db.json). Ejecutar las peticiones en orden.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Estado de la API",
+      "item": [
+        {
+          "name": "0.1 Comprobar que la API está activa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/salud",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "salud"
+              ]
+            },
+            "description": "Verifica que el servidor está encendido."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"El mensaje confirma que la API funciona\", function () {",
+                  "    pm.expect(pm.response.json().mensaje).to.include(\"funcionando\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Cuentas de usuario",
+      "item": [
+        {
+          "name": "1.1 Registrar usuario (exitoso)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Crea la cuenta del usuario de pruebas. Respuesta esperada: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"cedula\": \"1234567890\",\n  \"telefono\": \"3101234567\",\n  \"correo\": \"juan@ejemplo.com\",\n  \"contrasena\": \"Clave12345\",\n  \"confirmarContrasena\": \"Clave12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"No devuelve la contraseña\", function () {",
+                  "    pm.expect(pm.response.json().datos).to.not.have.property(\"contrasena\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.2 Registrar usuario (correo repetido)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Intenta registrar el mismo correo otra vez. Respuesta esperada: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"cedula\": \"1234567890\",\n  \"telefono\": \"3101234567\",\n  \"correo\": \"juan@ejemplo.com\",\n  \"contrasena\": \"Clave12345\",\n  \"confirmarContrasena\": \"Clave12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = false\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.3 Registrar usuario (datos inválidos)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "registro"
+              ]
+            },
+            "description": "Envía datos incorrectos. Respuesta esperada: 400 con la lista de errores.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"J\",\n  \"cedula\": \"abc\",\n  \"telefono\": \"123\",\n  \"correo\": \"no-es-correo\",\n  \"contrasena\": \"123\",\n  \"confirmarContrasena\": \"456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = false\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(false);",
+                  "});",
+                  "pm.test(\"Lista varios errores de validación\", function () {",
+                  "    pm.expect(pm.response.json().detalles.length >= 5).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.4 Iniciar sesión (usuario)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Inicia sesión y guarda el token en la variable tokenUsuario. Respuesta esperada: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"juan@ejemplo.com\",\n  \"contrasena\": \"Clave12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"Devuelve un token y lo guarda\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.datos.token).to.be.a(\"string\");",
+                  "    pm.collectionVariables.set(\"tokenUsuario\", json.datos.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.5 Iniciar sesión (contraseña incorrecta)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Contraseña equivocada. Respuesta esperada: 401 con error de autenticación.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"juan@ejemplo.com\",\n  \"contrasena\": \"Incorrecta123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = false\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(false);",
+                  "});",
+                  "pm.test(\"El mensaje habla de error de autenticación\", function () {",
+                  "    pm.expect(pm.response.json().error).to.include(\"autenticación\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.6 Iniciar sesión (administrador)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Inicia sesión como administrador y guarda el token en tokenAdmin.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@espm.gov.co\",\n  \"contrasena\": \"Admin12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"El rol es admin y guarda el token\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.datos.usuario.rol).to.eql(\"admin\");",
+                  "    pm.collectionVariables.set(\"tokenAdmin\", json.datos.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1.7 Recuperar contraseña",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/recuperar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "recuperar"
+              ]
+            },
+            "description": "Solicita instrucciones para restablecer la contraseña. Respuesta esperada: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"juan@ejemplo.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Facturas",
+      "item": [
+        {
+          "name": "2.1 Consultar facturas por número de cuenta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas?cuenta=001-2345-6",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas"
+              ],
+              "query": [
+                {
+                  "key": "cuenta",
+                  "value": "001-2345-6"
+                }
+              ]
+            },
+            "description": "Devuelve las facturas de la cuenta 001-2345-6."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"Devuelve 2 facturas\", function () {",
+                  "    pm.expect(pm.response.json().datos.length).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.2 Consultar facturas por cédula",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas?cedula=987654321",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas"
+              ],
+              "query": [
+                {
+                  "key": "cedula",
+                  "value": "987654321"
+                }
+              ]
+            },
+            "description": "Devuelve las facturas de la cédula 987654321."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.3 Consultar factura (cuenta inexistente)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas?cuenta=999-9999-9",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas"
+              ],
+              "query": [
+                {
+                  "key": "cuenta",
+                  "value": "999-9999-9"
+                }
+              ]
+            },
+            "description": "Cuenta que no existe. Respuesta esperada: 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = false\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.4 Pagar factura (sin iniciar sesión)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas/FAC-2025-0601/pagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas",
+                "FAC-2025-0601",
+                "pagar"
+              ]
+            },
+            "description": "Sin token de sesión. Respuesta esperada: 401.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"PSE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = false\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.5 Pagar factura (exitoso)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenUsuario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas/FAC-2025-0601/pagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas",
+                "FAC-2025-0601",
+                "pagar"
+              ]
+            },
+            "description": "Paga la factura FAC-2025-0601 con el usuario de pruebas. Respuesta esperada: 200 con el recibo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"PSE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"Devuelve el número de recibo\", function () {",
+                  "    pm.expect(pm.response.json().datos.numeroRecibo).to.include(\"REC-\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.6 Pagar factura (ya pagada)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenUsuario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas/FAC-2025-0601/pagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas",
+                "FAC-2025-0601",
+                "pagar"
+              ]
+            },
+            "description": "Intenta pagar de nuevo la misma factura. Respuesta esperada: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"PSE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = false\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2.7 Generar recibo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenUsuario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas/FAC-2025-0601/recibo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "facturas",
+                "FAC-2025-0601",
+                "recibo"
+              ]
+            },
+            "description": "Genera el recibo de la factura pagada. Respuesta esperada: 200."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"El total pagado es 77000\", function () {",
+                  "    pm.expect(pm.response.json().datos.totalPagado).to.eql(77000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. PQR",
+      "item": [
+        {
+          "name": "3.1 Radicar PQR (exitoso)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pqr",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pqr"
+              ]
+            },
+            "description": "Radica un reclamo y guarda el número de radicado en la variable radicado. Respuesta esperada: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Reclamo\",\n  \"servicio\": \"Facturación\",\n  \"nombre\": \"Juan Pérez\",\n  \"cedula\": \"1234567890\",\n  \"telefono\": \"3101234567\",\n  \"correo\": \"juan@ejemplo.com\",\n  \"cuenta\": \"001-2345-6\",\n  \"descripcion\": \"Me cobraron dos veces el servicio de aseo.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"Devuelve el número de radicado y lo guarda\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.datos.radicado).to.include(\"PQR-\");",
+                  "    pm.collectionVariables.set(\"radicado\", json.datos.radicado);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.2 Radicar PQR (datos inválidos)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pqr",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pqr"
+              ]
+            },
+            "description": "Tipo, servicio y descripción incorrectos. Respuesta esperada: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Otro\",\n  \"servicio\": \"Gas\",\n  \"nombre\": \"Juan Pérez\",\n  \"cedula\": \"1234567890\",\n  \"telefono\": \"3101234567\",\n  \"correo\": \"juan@ejemplo.com\",\n  \"cuenta\": \"001-2345-6\",\n  \"descripcion\": \"corta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = false\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.3 Consultar estado de PQR por cédula",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/pqr?cedula=1234567890",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pqr"
+              ],
+              "query": [
+                {
+                  "key": "cedula",
+                  "value": "1234567890"
+                }
+              ]
+            },
+            "description": "Devuelve las PQR de la cédula 1234567890. Respuesta esperada: 200."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"Devuelve al menos 3 PQR\", function () {",
+                  "    pm.expect(pm.response.json().datos.length >= 3).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.4 Actualizar PQR (sin ser administrador)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenUsuario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pqr/{{radicado}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pqr",
+                "{{radicado}}"
+              ]
+            },
+            "description": "Un usuario normal intenta cambiar el estado. Respuesta esperada: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Resuelto\",\n  \"respuesta\": \"Intento sin permisos.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = false\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3.5 Actualizar PQR (administrador)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pqr/{{radicado}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pqr",
+                "{{radicado}}"
+              ]
+            },
+            "description": "El administrador marca la PQR como Resuelta. Respuesta esperada: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"Resuelto\",\n  \"respuesta\": \"Se reversó el cobro duplicado.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"El estado quedó en Resuelto\", function () {",
+                  "    pm.expect(pm.response.json().datos.estado).to.eql(\"Resuelto\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Noticias",
+      "item": [
+        {
+          "name": "4.1 Listar noticias",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/noticias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "noticias"
+              ]
+            },
+            "description": "Lista todas las noticias y comunicados."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"Devuelve al menos 5 noticias\", function () {",
+                  "    pm.expect(pm.response.json().datos.length >= 5).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.2 Filtrar noticias por tipo (Corte)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/noticias?tipo=Corte",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "noticias"
+              ],
+              "query": [
+                {
+                  "key": "tipo",
+                  "value": "Corte"
+                }
+              ]
+            },
+            "description": "Devuelve solo las noticias de tipo Corte."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});",
+                  "pm.test(\"Todas son de tipo Corte\", function () {",
+                  "    var todas = pm.response.json().datos.every(function (n) { return n.tipo === \"Corte\"; });",
+                  "    pm.expect(todas).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.3 Publicar noticia (administrador)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/noticias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "noticias"
+              ]
+            },
+            "description": "El administrador publica una noticia. Respuesta esperada: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Comunicado\",\n  \"titulo\": \"Horario de atención en diciembre\",\n  \"descripcion\": \"Atenderemos de lunes a viernes hasta las 5 PM durante diciembre.\",\n  \"horario\": \"7:00 AM - 5:00 PM\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4.4 Publicar noticia (sin ser administrador)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenUsuario}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/noticias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "noticias"
+              ]
+            },
+            "description": "Un usuario normal intenta publicar. Respuesta esperada: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"Comunicado\",\n  \"titulo\": \"Noticia de prueba\",\n  \"descripcion\": \"Un usuario normal no puede publicar.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = false\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(false);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Contacto",
+      "item": [
+        {
+          "name": "5.1 Enviar mensaje de contacto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contacto"
+              ]
+            },
+            "description": "Envía un mensaje desde el formulario de contacto. Respuesta esperada: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana Torres\",\n  \"telefono\": \"3001112233\",\n  \"correo\": \"ana@ejemplo.com\",\n  \"mensaje\": \"¿Hasta qué hora atienden los sábados?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5.2 Ver mensajes recibidos (administrador)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contacto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contacto"
+              ]
+            },
+            "description": "El administrador lista los mensajes recibidos. Respuesta esperada: 200."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de respuesta es 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"La respuesta indica ok = true\", function () {",
+                  "    pm.expect(pm.response.json().ok).to.eql(true);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "tokenUsuario",
+      "value": ""
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "radicado",
+      "value": ""
+    }
+  ]
+}
