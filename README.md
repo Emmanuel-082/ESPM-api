@@ -45,7 +45,7 @@ Facturas de ejemplo: cuenta `001-2345-6` (cédula `1234567890`) y cuenta `002-10
 
 ## Pruebas con Postman (evidencia AA5-EV04)
 
-La carpeta `postman/` tiene la colección `ESPM_API.postman_collection.json` con 26 peticiones y sus pruebas automáticas. Para usarla: importarla en Postman, iniciar el servidor con la base de datos limpia (borrar `data/db.json` y ejecutar `node server.js`) y correr la colección completa con **Run collection**. Los endpoints están listados en `ENDPOINTS.txt` y el documento de pruebas está en `docs/DOCUMENTO_PRUEBAS_API_ESPM.docx`.
+La carpeta `postman/` tiene la colección `ESPM_API.postman_collection.json` con 26 peticiones y sus pruebas automáticas. Para usarla: importarla en Postman, iniciar el servidor con la base de datos limpia (borrar `data/db.json` y ejecutar `node server.js`) y correr la colección completa con **Run collection**. Los endpoints están listados en `ENDPOINTS.txt` y el documento de pruebas está en `docs/DOCUMENTO_PRUEBAS_POSTMAN_AA5_EV04.docx`.
 
 ## Estructura
 
